@@ -2,6 +2,7 @@
 from datetime import datetime
 from . import db
 from werkzeug.security import generate_password_hash
+from sqlalchemy import Unicode
 
 class User(db.Model):
     # You can use this to change the table name. The default convention is to use
@@ -34,20 +35,19 @@ class User(db.Model):
 
     def get_id(self):
         try:
-            return unicode(self.id)  # python 2 support
+            return Unicode(self.id)  # python 2 support
         except NameError:
             return str(self.id)  # python 3 support
 
     def __repr__(self):
         return '<User %r>' % (self.username)
     
-    def __init__(self, username, password, name, email, photo, date_joined):
+    def __init__(self, username, password, name, email, photo):
         self.username = username
         self.password = generate_password_hash(password, method='pbkdf2:sha256')
         self.name = name
         self.email = email
         self.photo = photo
-        self.date_joined = date_joined
 
 class Profile(db.Model):
     __tablename__ = 'Profile'
@@ -69,8 +69,33 @@ class Profile(db.Model):
     family_oriented = db.Column(db.Boolean, nullable=True)
     
     def __repr__(self):
-        return f'<Profile for User ID: {self.user_id}>'
+        return f'<Profile for User ID: {self.user_id_fk}>'
+        _
 
+    def __init__(self, user_id_fk, description, parish, biography, sex, race,birth_year, height, fav_cuisine, fav_colour,fav_school_subject, political, religious, family_oriented):
+        self.user_id_fk = user_id_fk
+        self.description = description
+        self.parish = parish
+        self.biography = biography
+        self.sex = sex
+        self.race = race
+        self.birth_year = birth_year
+        self.height = height
+        self.fav_cuisine = fav_cuisine
+        self.fav_colour = fav_colour
+        self.fav_school_subject = fav_school_subject
+        self.political = political
+        self.religious = religious
+        self.family_oriented = family_oriented
+
+        def is_complete(self):
+            required_fields = [
+                self.description, self.parish, self.biography, self.sex, self.race,
+                self.birth_year, self.height, self.fav_cuisine,
+                self.fav_colour, self.fav_school_subject,
+                self.political, self.religious, self.family_oriented
+            ]
+            return all(field is not None and field != "" for field in required_fields)
 
 class Favourite(db.Model):
     __tablename__ = 'Favourite'
@@ -83,4 +108,8 @@ class Favourite(db.Model):
     favourite_user = db.relationship('User', foreign_keys=[fav_user_id_fk])
     
     def __repr__(self):
-        return f'<Favourite: User {self.user_id} likes User {self.fav_user_id_fk}>'
+        return f'<Favourite: User {self.user_id_fk} likes User {self.fav_user_id_fk}>'
+    
+    def __init__(self, user_id_fk, fav_user_id_fk):
+        self.user_id_fk = user_id_fk
+        self.fav_user_id_fk = fav_user_id_fk
