@@ -1,5 +1,5 @@
 # Add any model classes for Flask-SQLAlchemy here
-
+from datetime import datetime
 from . import db
 from werkzeug.security import generate_password_hash
 
@@ -16,7 +16,7 @@ class User(db.Model):
     name = db.Column(db.String(80))
     email = db.Column(db.String(128))
     photo = db.Column(db.String(255), nullable=True)
-    date_joined = db.Column(db.DateTime)
+    date_joined = db.Column(db.DateTime , default=datetime.now)
 
     # Relationship with Profile
     profile = db.relationship('Profile', backref='user', uselist=False)
