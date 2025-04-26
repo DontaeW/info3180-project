@@ -23,6 +23,17 @@
               <RouterLink class="nav-link" to="/about">About</RouterLink>
             </li>
           </ul>
+            
+          <ul class="navbar-nav">
+              <li v-if="current_user.is_authenticated">
+                <a class="nav-link" href="/logout">Logout</a>
+              </li>
+                <li v-else class="d-flex">
+                <a class="nav-link me-2" href="/login">Login</a>
+                <a class="nav-link" href="/register">Register</a>
+                </li>
+          </ul>
+
         </div>
       </div>
     </nav>
@@ -31,6 +42,10 @@
 
 <script setup>
 import { RouterLink } from "vue-router";
+import LoginView from "../views/LoginView.vue";
+import { ref } from 'vue';
+
+const current_user = ref({ is_authenticated: false });
 </script>
 
 <style>

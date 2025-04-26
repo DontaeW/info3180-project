@@ -6,7 +6,7 @@ This file creates your application.
 """
 
 from app import app, db, login_manager
-from flask import render_template, request, jsonify, send_file,send_from_directory
+from flask import flash, render_template, request, jsonify, send_file,send_from_directory
 import os,jwt,base64
 from werkzeug.utils import secure_filename
 from flask_wtf.csrf import generate_csrf
@@ -67,7 +67,7 @@ def register():
     else:
         return jsonify({"errors": form_errors(form)}), 400
 
-@app.route('/api/auth/login', methods=['POST'])
+@app.route('/api/auth/login', methods=['POST', 'GET'])
 def login():
     form = LoginForm()
     if form.validate_on_submit():
@@ -76,11 +76,12 @@ def login():
         user = User.query.filter_by(username=username).first()
         if user and check_password_hash(user.password, password):
             login_user(user)
-            return jsonify({'token': generate_token()})
+            flash("Login Successful!", "success")
+            return jsonify({'token': generate_token(), 'redirect': '/'})
         return jsonify({'errors': ['Invalid credentials']}), 401
     return jsonify({'errors': form_errors(form)}), 400
 
-@app.route('/api/auth/logout', methods=['POST'])
+@app.route('/api/auth/logout', methods=['POST', 'GET'])
 @login_required
 def logout():
     logout_user()
