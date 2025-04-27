@@ -42,7 +42,7 @@
 
 <script setup>
 import { RouterLink } from "vue-router";
-import LoginView from "../views/LoginView.vue";
+import LoginView from "./LoginForm.vue";
 import { ref } from 'vue';
 
 const current_user = ref({ is_authenticated: false });
