@@ -80,8 +80,8 @@
         errors.value = [];
         message.value = "";
 
-        const signupForm = document.getElementById('signupForm');
-        const form_data = new FormData(signupForm);
+        // const signupForm = document.getElementById('signupForm');
+        const form_data = new FormData();
 
         form_data.append("username", user.value.username);
         form_data.append("password", user.value.password);

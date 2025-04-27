@@ -41,21 +41,21 @@ def generate_token():
 
     return token
 
+
 @app.route('/api/register', methods=["POST"])
 def register():
-    data = request.json
-    form = SignUpForm(data=data)
-    if form.validate():
+    form = SignUpForm()
+    if form.validate_on_submit():
         try:
-            username = data['username']
-            password = data['password']
-            name = data['name']
-            email = data['email']
-            photo_data = data['photo']
+            username = request.form['username']
+            password = request.form['password']
+            name = request.form['name']
+            email = request.form['email']
+            photo = request.files['photo']
             filename = secure_filename(f"{username}_profile_photo.jpg")
             photo_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
             with open(photo_path, "wb") as fh:
-                fh.write(base64.decodebytes(photo_data.split(",")[1].encode()))
+                fh.write(base64.decodebytes(photo.split(",")[1].encode()))
 
             user = User(username, password, name, email, filename)
             db.session.add(user)
@@ -181,8 +181,8 @@ def add_header(response):
     """
     response.headers['X-UA-Compatible'] = 'IE=Edge,chrome=1'
     response.headers['Cache-Control'] = 'public, max-age=0'
-    response.headers["Access-Control-Allow-Origin"] = "http://localhost:5173"
-    response.headers["Content-Type"] = "application/json"
+    # response.headers["Access-Control-Allow-Origin"] = "http://localhost:5173"
+    # response.headers["Content-Type"] = "application/json"
     return response
 
 
