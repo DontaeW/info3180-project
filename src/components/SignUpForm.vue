@@ -1,50 +1,51 @@
 <template>
-    <form id="signupForm" @submit.prevent="handleRegister" enctype="multipart/form-data">
-        <div class="signup-container">
+    <div class="signup-container">
+        <form id="signupForm" @submit.prevent="handleRegister" enctype="multipart/form-data">
             <h1>Register</h1>
             <div class="form-group">
-                <label for="username">Username:</label>
+                <label for="username" class="form-label">Username:</label>
                 <input type="text" id="username" class="form-control" v-model="user.username" placeholder="Enter your username" required />
                 
-                <label for="password">Password:</label>
+                <label for="password" class="form-label">Password:</label>
                 <input type="password" id="password" class="form-control" v-model="user.password" placeholder="Enter your password" required/>
 
-                <label for="name">Name:</label>
+                <label for="name" class="form-label">Name:</label>
                 <input type="text" id="name" class="form-control" v-model="user.name" placeholder="Enter your full name" required />
                 
-                <label for="email">Email:</label>
+                <label for="email" class="form-label">Email:</label>
                 <input type="text" id="email" class="form-control" v-model="user.email" placeholder="Enter your email" required />
                 
-                <label for="photo_data">Profile Photo:</label>
-                <input type="file" id="photo_data" class="form-control" @change="handlePhotoUpload"/>
+                <label for="photo" class="form-label">Profile Photo:</label>
+                <input type="file" id="photo" class="form-control" @change="handlePhotoUpload"/>
                 <small class="form-text text-muted">Please upload a JPG or PNG image for your profile picture.</small>
             </div>
             <button type="submit">Register</button>
 
-            <div v-if="successMessage" class="alert alert-success">{{ successMessage }}</div>
+            <div v-if="message" class="alert alert-success">{{ message }}</div>
             <div v-if="errors.length" class="alert alert-danger">
                 <ul>
-                <li v-for="(error, index) in errors" :key="index">{{ error }}</li>
+                    <li v-for="(error, index) in errors" :key="index">{{ error }}</li>
                 </ul>
             </div>
-        </div>
-    </form>
+        </form>
+    </div>
 </template>
 
 <script setup>
     import { ref, onMounted } from 'vue';
-    import { useRouter } from 'vue-router';
-    const router = useRouter();
-
+    // import { useRouter } from 'vue-router';
+    // const router = useRouter();
+    
     const csrf_token = ref("");
     const user = ref({
         username: "",
         password: "",
         name: "",
-        email: "",
+        email: ""
     });
-    const photo_data = ref(null);
-    const successMessage = ref("");
+    
+    const photo = ref(null);
+    const message = ref("");
     const errors = ref([]);
 
     // Fetch CSRF token when component is mounted
@@ -54,22 +55,30 @@
 
     // Method to fetch CSRF token
     function getCsrfToken() {
-    fetch('/api/v1/csrf-token')
-        .then(response => response.json())
-        .then(data => {
-        csrfToken.value = data.csrf_token;
+        fetch("/api/v1/csrf-token")
+        .then(response => {
+            if (!response.ok) {
+            throw new Error("Failed to get CSRF token");
+            }
+            return response.json();
         })
-        .catch(error => console.log(error));
+        .then(data => {
+            console.log(data);
+            csrf_token.value = data.csrf_token;
+        })
+        .catch(err => {
+            console.error("Error fetching CSRF token", err);
+        });
     }
         
     // Method to handle photo upload
     function handlePhotoUpload(event) {
-        photo_data.value = event.target.files[0];
+        photo.value = event.target.files[0];
     }
 
     function handleRegister() {
         errors.value = [];
-        successMessage.value = "";
+        message.value = "";
 
         const signupForm = document.getElementById('signupForm');
         const form_data = new FormData(signupForm);
@@ -78,7 +87,7 @@
         form_data.append("password", user.value.password);
         form_data.append("name", user.value.name);
         form_data.append("email", user.value.email);
-        form_data.append("photo_data", photo_data.value);
+        form_data.append("photo", photo.value);
         form_data.append("csrf_token", csrf_token.value);
 
         fetch("/api/register", {
@@ -88,22 +97,21 @@
                 "X-CSRF-Token": csrf_token.value,
             },
         })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                successMessage.value = data.message;
-                console.log("Registration successful: ", data);
+        .then(response => {
+            if (response.ok) {
+                message.value = 'Registration successful!';
                 router.push('/login'); // Redirect to login page
             } else {
-                errors.value = data.errors || ["Failed to register user."];
-                console.error("Backend errors:", data.errors);
+                return response.json().then(data => {
+                    errors.value = data.errors || ['Registration failed.'];
+                });
             }
         })
         .catch (err => {
-        errors.value = ["An error occurred while registering."];
-        console.error("Error registering: ", err);
+            errors.value = ["An error occurred while registering."];
+            console.error("Error registering: ", err);
         });
-    };
+    }
 </script>
 
 <style scoped>

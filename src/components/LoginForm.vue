@@ -24,7 +24,6 @@
     import { useRouter } from 'vue-router';
     const router = useRouter();
 
-
     const username = ref('');
     const password = ref('');
     const message = ref('');
@@ -69,7 +68,7 @@
         .then(response => {
             if (response.ok) {
                 message.value = 'Login successful!';
-                router.push('/'); // Redirect to home page
+                router.push('/userHome'); // Redirect to home page
             } else {
                 return response.json().then(data => {
                     errors.value = data.errors || ['Login failed.'];

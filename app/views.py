@@ -77,7 +77,7 @@ def login():
         if user and check_password_hash(user.password, password):
             login_user(user)
             flash("Login Successful!", "success")
-            return jsonify({'token': generate_token(), 'redirect': '/'})
+            return jsonify({'token': generate_token(), 'redirect': '/userHome'})
         return jsonify({'errors': ['Invalid credentials']}), 401
     return jsonify({'errors': form_errors(form)}), 400
 
@@ -181,6 +181,8 @@ def add_header(response):
     """
     response.headers['X-UA-Compatible'] = 'IE=Edge,chrome=1'
     response.headers['Cache-Control'] = 'public, max-age=0'
+    response.headers["Access-Control-Allow-Origin"] = "http://localhost:5173"
+    response.headers["Content-Type"] = "application/json"
     return response
 
 
