@@ -13,7 +13,7 @@ class User(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), unique=True)
-    password = db.Column(db.String(80))
+    password = db.Column(db.String(255))
     name = db.Column(db.String(80))
     email = db.Column(db.String(128))
     photo = db.Column(db.String(255), nullable=True)
@@ -22,7 +22,8 @@ class User(db.Model):
     # Relationship with Profile
     profile = db.relationship('Profile', backref='user', uselist=False)
     # Relationship with Favourite
-    favourites = db.relationship('Favourite', backref='user')
+    favourites = db.relationship('Favourite', backref='user', foreign_keys='Favourite.user_id_fk')
+    favorited_by = db.relationship('Favourite', backref='favorited_user', foreign_keys='Favourite.fav_user_id_fk')
 
     def is_authenticated(self):
         return True
@@ -105,7 +106,7 @@ class Favourite(db.Model):
     fav_user_id_fk = db.Column(db.Integer, db.ForeignKey('Users.id'), nullable=False)
     
     # Additional relationship to access the favorited user
-    favourite_user = db.relationship('User', foreign_keys=[fav_user_id_fk])
+    # favourite_user = db.relationship('User', foreign_keys=[fav_user_id_fk])
     
     def __repr__(self):
         return f'<Favourite: User {self.user_id_fk} likes User {self.fav_user_id_fk}>'

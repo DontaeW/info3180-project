@@ -33,15 +33,16 @@
 
 <script setup>
     import { ref, onMounted } from 'vue';
-    // import { useRouter } from 'vue-router';
-    // const router = useRouter();
+    import { useRouter } from 'vue-router';
+    
+    const router = useRouter();
     
     const csrf_token = ref("");
     const user = ref({
         username: "",
         password: "",
         name: "",
-        email: ""
+        email: "",
     });
     
     const photo = ref(null);
@@ -80,8 +81,8 @@
         errors.value = [];
         message.value = "";
 
-        // const signupForm = document.getElementById('signupForm');
-        const form_data = new FormData();
+        const signupForm = document.getElementById('signupForm');
+        const form_data = new FormData(signupForm);
 
         form_data.append("username", user.value.username);
         form_data.append("password", user.value.password);
@@ -90,6 +91,8 @@
         form_data.append("photo", photo.value);
         form_data.append("csrf_token", csrf_token.value);
 
+        console.log("Form data being sent:", form_data);
+        
         fetch("/api/register", {
             method: "POST",
             body: form_data,
@@ -97,20 +100,23 @@
                 "X-CSRF-Token": csrf_token.value,
             },
         })
-        .then(response => {
-            if (response.ok) {
-                message.value = 'Registration successful!';
-                router.push('/login'); // Redirect to login page
+        .then(response => response.json())
+        .then(data => {
+            if (data.errors) {
+            errors.value = Object.values(data.errors).flat(); 
+            message.value = "";
             } else {
-                return response.json().then(data => {
-                    errors.value = data.errors || ['Registration failed.'];
-                });
+                message.value = data.message;
+                errors.value = [];
+                user.username = "";
+                user.password = "";
+                user.name = "";
+                user.email = "";
+                photo.value = null;
+                router.push({ name: 'login' });
             }
         })
-        .catch (err => {
-            errors.value = ["An error occurred while registering."];
-            console.error("Error registering: ", err);
-        });
+        .catch(error => console.log(error));
     }
 </script>
 
