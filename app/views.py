@@ -188,3 +188,69 @@ def add_header(response):
 def page_not_found(error):
     """Custom 404 page."""
     return render_template('404.html'), 404
+
+
+
+
+@app.route('/api/profiles/matches/<int:profile_id>', methods=['GET'])
+@login_required
+def get_matches(profile_id):
+    
+    token = request.headers.get('Authorization')
+    if not token:
+        return jsonify({"error": "Authorization token missing"}), 401
+    
+    try:
+        token = token.split(" ")[1]  # Extract the actual token from "Bearer <token>"
+        decoded_token = jwt.decode(token, app.config['SECRET_KEY'], algorithms=['HS256'])
+
+        if decoded_token.get('user_id') != current_user.id:
+            return jsonify({"error": "Unauthorized access"}), 403
+
+        current_profile = Profile.query.get_or_404(profile_id)  # Get the selected profile
+        other_profiles = Profile.query.filter(Profile.user_id_fk != current_profile.user_id_fk).all()  # Exclude current user
+
+        matched_profiles = []
+
+        for profile in other_profiles:
+            # Age difference check
+            if abs(current_profile.birth_year - profile.birth_year) > 5:
+                continue
+
+            # Height difference check (must be between 3 to 10 inches)
+            if not (3 <= abs(current_profile.height - profile.height) <= 10):
+                continue
+
+            # Count shared preferences
+            shared_traits = sum([
+                current_profile.fav_cuisine.lower() == profile.fav_cuisine.lower(),
+                current_profile.fav_color.lower() == profile.fav_color.lower(),
+                current_profile.fav_school_subject.lower() == profile.fav_school_subject.lower(),
+                current_profile.political == profile.political,
+                current_profile.religious == profile.religious,
+                current_profile.family_oriented == profile.family_oriented
+            ])
+
+            # Minimum 3 shared traits required
+            if shared_traits >= 3:
+                matched_profiles.append({
+                    "profile_id": profile.id,
+                    "user_id": profile.user_id_fk,
+                    "name": User.query.get(profile.user_id_fk).name,
+                    "photo": f"/api/photo/{profile.photo}",
+                    "birth_year": profile.birth_year,
+                    "height": profile.height,
+                    "fav_cuisine": profile.fav_cuisine,
+                    "fav_color": profile.fav_color,
+                    "fav_school_subject": profile.fav_school_subject,
+                    "political": profile.political,
+                    "religious": profile.religious,
+                    "family_oriented": profile.family_oriented
+                })
+
+        return jsonify({"matching_profiles": matched_profiles}), 200
+    
+    except jwt.InvalidTokenError:
+        return jsonify({"error": "Invalid token"}), 401
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
