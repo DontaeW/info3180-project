@@ -80,17 +80,20 @@ def debug_users():
 @app.route('/api/auth/login', methods=['POST', 'GET'])
 def login():
     form = LoginForm()
-    if form.validate_on_submit():
-        username = request.form.get('username')
-        password = request.form.get('password')
+    try:
+        if form.validate_on_submit():
+            username = request.form.get('username')
+            password = request.form.get('password')
 
-        user = User.query.filter_by(username=username).first()
-        if user and check_password_hash(user.password, password):
-            login_user(user)
-            flash("Login Successful!", "success")
-            return jsonify({'token': generate_token(user.id), 'redirect': '/userHome'})
-        return jsonify({'errors': ['Invalid credentials']}), 401
-    return jsonify({'errors': form_errors(form)}), 400
+            user = User.query.filter_by(username=username).first()
+            if user and check_password_hash(user.password, password):
+                token = generate_token()
+                return jsonify({'message': 'Login successful!', 'token': token}), 200
+            return jsonify({'errors': ['Invalid credentials']}), 401
+        return jsonify({'errors': form_errors(form)}), 400
+    except Exception as e:
+        app.logger.error(f"Login error: {e}")
+        return jsonify({'errors': ['An unexpected error occurred.']}), 500
 
 @app.route('/api/auth/logout', methods=['POST'])
 @login_required

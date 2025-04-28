@@ -1,5 +1,5 @@
 <template>
-    <form id="loginForm" @submit.prevent="handleLogin" enctype="multipart/form-data">
+    <form id="loginForm" @submit.prevent="handleLogin">
         <div class="login-container">
             <h1>Login</h1>
             <div class="form-group">
@@ -18,69 +18,81 @@
         </div>
     </form>
 </template>
-
 <script setup>
-    import { ref, onMounted } from 'vue';
+    import { onMounted, ref } from 'vue';
     import { useRouter } from 'vue-router';
+    
     const router = useRouter();
-
     const username = ref('');
     const password = ref('');
     const message = ref('');
-    const csrfToken = ref('');
+    const csrf_token = ref('');
     const errors = ref([]);
-
+    
     // Method to fetch CSRF token
     function getCsrfToken() {
-            fetch("/api/v1/csrf-token")
-            .then(response => {
-                if (!response.ok) {
+        fetch("/api/v1/csrf-token")
+        .then(response => {
+            if (!response.ok) {
                 throw new Error("Failed to get CSRF token");
-                }
-                return response.json();
-            })
-            .then(data => {
-                console.log(data);
-                csrfToken.value = data.csrf_token;
-            })
-            .catch(err => {
-                console.error("Error fetching CSRF token", err);
-            });
-        }
-
+            }
+            return response.json();
+        })
+        .then(data => {
+            csrf_token.value = data.csrf_token;
+        })
+        .catch(err => {
+            console.error("Error fetching CSRF token", err);
+        });
+    }
+    
     // Fetch CSRF token when component is mounted
     onMounted(() => {
-            getCsrfToken();
-        });
-
+        getCsrfToken();
+    });
+    
     function handleLogin() {
-        const loginForm = document.getElementById('loginForm');
-        let form_data = new FormData(loginForm);
-
-        fetch("/api/v1/login", {
+        // Create the form data properly
+        const formData = new FormData();
+        formData.append('username', username.value);
+        formData.append('password', password.value);
+        
+        fetch("/api/auth/login", {
             method: "POST",
             headers: {
-                "Content-Type": "application/json",
-                "X-CSRF-Token": csrfToken.value,
+                "X-CSRF-Token": csrf_token.value,
             },
-            body: form_data
+            body: formData
         })
         .then(response => {
-            if (response.ok) {
-                message.value = 'Login successful!';
-                router.push('/userHome'); // Redirect to home page
-            } else {
-                return response.json().then(data => {
-                    errors.value = data.errors || ['Login failed.'];
-                });
+            if (!response.ok) {
+                // Handle HTTP errors properly
+                return response.json().then(data => Promise.reject(data));
             }
+            return response.json();
+        })
+        .then(data => {
+            message.value = data.message || "Login successful!";
+            errors.value = [];
+            username.value = "";
+            password.value = "";
+            
+            // Store the authentication token
+            localStorage.setItem('authToken', data.token);
+            
+            router.push({ name: "userHome" });
         })
         .catch(error => {
-            errors.value.push('An error occurred during login.');
+            console.error("Login error:", error);
+            if (error.errors) {
+                errors.value = Array.isArray(error.errors) ? error.errors : [error.errors];
+            } else {
+                errors.value = ["Login failed. Please try again."];
+            }
+            message.value = "";
         });
-    };
+    }
 </script>
-
 <style scoped>
 .login-container {
     max-width: 400px;
@@ -90,22 +102,18 @@
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
-
 h1 {
     text-align: center;
     margin-bottom: 20px;
 }
-
 .form-group {
     margin-bottom: 15px;
 }
-
 label {
     display: block;
     margin-bottom: 5px;
     font-weight: bold;
 }
-
 input {
     width: 100%;
     padding: 8px;
@@ -113,7 +121,6 @@ input {
     border: 1px solid #ccc;
     border-radius: 4px;
 }
-
 button {
     width: 100%;
     padding: 10px;
@@ -123,9 +130,27 @@ button {
     border-radius: 4px;
     cursor: pointer;
 }
-
 button:hover {
     background-color: #ff3d6d;
     transition: background-color 0.3s ease;
+}
+.alert {
+    margin-top: 15px;
+    padding: 10px;
+    border-radius: 4px;
+}
+.alert-success {
+    background-color: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+.alert-danger {
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+.alert-success {
+    color: #155724;
+    border: 1px solid #c3e6cb;
 }
 </style>
