@@ -41,21 +41,23 @@ def generate_token():
 
     return token
 
+
 @app.route('/api/register', methods=["POST"])
 def register():
-    data = request.json
-    form = SignUpForm(data=data)
-    if form.validate():
+    form = SignUpForm()
+    if form.validate_on_submit():
         try:
-            username = data['username']
-            password = data['password']
-            name = data['name']
-            email = data['email']
-            photo_data = data['photo']
+            username = request.form['username']
+            password = request.form['password']
+            name = request.form['name']
+            email = request.form['email']
+            photo = request.files['photo']
+
             filename = secure_filename(f"{username}_profile_photo.jpg")
             photo_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-            with open(photo_path, "wb") as fh:
-                fh.write(base64.decodebytes(photo_data.split(",")[1].encode()))
+            photo.save(photo_path)
+            # with open(photo_path, "wb") as fh:
+            #     fh.write(base64.decodebytes(photo.split(",")[1].encode()))
 
             user = User(username, password, name, email, filename)
             db.session.add(user)
@@ -67,21 +69,33 @@ def register():
     else:
         return jsonify({"errors": form_errors(form)}), 400
 
+@app.route('/debug/users', methods=['GET'])
+def debug_users():
+    if app.debug:  # Only works in debug mode
+        users = User.query.all()
+        user_list = [{"id": user.id, "username": user.username} for user in users]
+        return jsonify(user_list)
+    return jsonify({"error": "Not available"}), 403
+
 @app.route('/api/auth/login', methods=['POST', 'GET'])
 def login():
     form = LoginForm()
-    if form.validate_on_submit():
-        username = form.username.data
-        password = form.password.data
-        user = User.query.filter_by(username=username).first()
-        if user and check_password_hash(user.password, password):
-            login_user(user)
-            flash("Login Successful!", "success")
-            return jsonify({'token': generate_token(), 'redirect': '/'})
-        return jsonify({'errors': ['Invalid credentials']}), 401
-    return jsonify({'errors': form_errors(form)}), 400
+    try:
+        if form.validate_on_submit():
+            username = request.form.get('username')
+            password = request.form.get('password')
 
-@app.route('/api/auth/logout', methods=['POST', 'GET'])
+            user = User.query.filter_by(username=username).first()
+            if user and check_password_hash(user.password, password):
+                token = generate_token()
+                return jsonify({'message': 'Login successful!', 'token': token}), 200
+            return jsonify({'errors': ['Invalid credentials']}), 401
+        return jsonify({'errors': form_errors(form)}), 400
+    except Exception as e:
+        app.logger.error(f"Login error: {e}")
+        return jsonify({'errors': ['An unexpected error occurred.']}), 500
+
+@app.route('/api/auth/logout', methods=['POST'])
 @login_required
 def logout():
     logout_user()
@@ -181,6 +195,8 @@ def add_header(response):
     """
     response.headers['X-UA-Compatible'] = 'IE=Edge,chrome=1'
     response.headers['Cache-Control'] = 'public, max-age=0'
+    # response.headers["Access-Control-Allow-Origin"] = "http://localhost:5173"
+    # response.headers["Content-Type"] = "application/json"
     return response
 
 

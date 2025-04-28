@@ -2,7 +2,7 @@
   <header>
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary fixed-top">
       <div class="container-fluid">
-        <a class="navbar-brand" href="/">VueJS with Flask</a>
+        <a class="navbar-brand" href="/">Jam-Date</a>
         <button
           class="navbar-toggler"
           type="button"
@@ -28,10 +28,9 @@
               <li v-if="current_user.is_authenticated">
                 <a class="nav-link" href="/logout">Logout</a>
               </li>
-                <li v-else class="d-flex">
-                <a class="nav-link me-2" href="/login">Login</a>
-                <a class="nav-link" href="/register">Register</a>
-                </li>
+              <li v-else>
+                <RouterLink class="nav-link" to="/login">Login</RouterLink>
+              </li>
           </ul>
 
         </div>

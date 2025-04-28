@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
+import UserHomeView from '../views/UserHomeView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -26,8 +27,14 @@ const router = createRouter({
       path: '/register',
       name: 'register',
       component: HomeView
+    },
+    {
+      path: '/userHome',
+      name: 'userHome',
+      component: UserHomeView
     }
   ]
 })
 
 export default router
+
