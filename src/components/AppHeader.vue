@@ -1,8 +1,8 @@
 <template>
   <header>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary fixed-top">
+    <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
       <div class="container-fluid">
-        <a class="navbar-brand" href="/">Jam-Date</a>
+        <a class="navbar-brand" href="/home">Jam-Date</a>
         <button
           class="navbar-toggler"
           type="button"
@@ -17,22 +17,21 @@
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
           <ul class="navbar-nav me-auto">
             <li class="nav-item">
-              <RouterLink to="/" class="nav-link active">Home</RouterLink>
-            </li>
-            <li class="nav-item">
               <RouterLink class="nav-link" to="/about">About</RouterLink>
+            </li>
+            <li class="nav-item" v-if="authStore.isAuthenticated">
+              <RouterLink class="nav-link" to="/profile">My Profile</RouterLink>
             </li>
           </ul>
             
           <ul class="navbar-nav">
-              <li v-if="current_user.is_authenticated">
-                <a class="nav-link" href="/logout">Logout</a>
-              </li>
-              <li v-else>
-                <RouterLink class="nav-link" to="/login">Login</RouterLink>
+              <li v-if="authStore.isAuthenticated">
+                <button @click="handleLogout" class="btn">Logout</button>              </li>
+              <li v-else class="nav-item">
+                <RouterLink class="btn" to="/login">Login</RouterLink>
+                <RouterLink class="btn" to="/register">Register</RouterLink>
               </li>
           </ul>
-
         </div>
       </div>
     </nav>
@@ -41,12 +40,48 @@
 
 <script setup>
 import { RouterLink } from "vue-router";
-import LoginView from "./LoginForm.vue";
-import { ref } from 'vue';
+import { useAuthStore } from '../stores/auth';
+import { onMounted } from 'vue';
+const authStore = useAuthStore();
 
-const current_user = ref({ is_authenticated: false });
+onMounted(() => {
+  authStore.checkAuth();
+});
+
+function handleLogout() {
+  authStore.logout();
+  window.location.href = '/';
+}
+
+
 </script>
 
 <style>
-/* Add any component specific styles here */
+.nav-item {
+  margin-right: 20px;
+  display: flex;
+}
+
+.navbar {
+  background-color: #ff438e;
+  padding: 10px;
+}
+
+.navbar-brand {
+  font-size: 24px;
+  font-weight: bold;
+  color: #fff;
+}
+
+.btn {
+  color: #fff;
+  text-decoration: none;
+  padding: 10px 15px;
+  border-radius: 5px;
+  background-color: #ff438e;
+  transition: background-color 0.3s;
+}
+.btn:hover {
+  background-color: #ffebf0;
+}
 </style>

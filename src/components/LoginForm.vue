@@ -21,7 +21,10 @@
 <script setup>
     import { onMounted, ref } from 'vue';
     import { useRouter } from 'vue-router';
-    
+    import { useAuthStore } from '../stores/auth';
+
+    const authStore = useAuthStore();
+
     const router = useRouter();
     const username = ref('');
     const password = ref('');
@@ -78,8 +81,7 @@
             password.value = "";
             
             // Store the authentication token
-            localStorage.setItem('authToken', data.token);
-            
+            authStore.login({ username: username.value }, data.token);
             router.push({ name: "userHome" });
         })
         .catch(error => {

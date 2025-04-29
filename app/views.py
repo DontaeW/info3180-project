@@ -41,7 +41,6 @@ def generate_token():
 
     return token
 
-
 @app.route('/api/register', methods=["POST"])
 def register():
     form = SignUpForm()
@@ -95,11 +94,17 @@ def login():
         app.logger.error(f"Login error: {e}")
         return jsonify({'errors': ['An unexpected error occurred.']}), 500
 
+# user_loader callback. This callback is used to reload the user object from
+# the user ID stored in the session
+@login_manager.user_loader
+def load_user(id):
+    return db.session.execute(db.select(User).filter_by(id=id)).scalar()
+
 @app.route('/api/auth/logout', methods=['POST'])
 @login_required
 def logout():
     logout_user()
-    return jsonify({'message': 'Successfully logged out'})
+    return jsonify({'message': 'Successfully logged out', 'redirect_url': "/"}), 200
 
 @app.route('/api/profiles', methods=['POST'])
 @login_required
@@ -158,6 +163,7 @@ def top_favorited_users(N):
 
     users = [User.query.get(uid).__dict__ for uid, count in results]
     return jsonify(users)
+
 
 ###
 # The functions below should be applicable to all Flask apps.
