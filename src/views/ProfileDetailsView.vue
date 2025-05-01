@@ -42,10 +42,10 @@
   <script setup>
   import { ref, onMounted } from "vue";
   import { useRouter } from "vue-router";
-  import { getToken } from "../auth.js";
+  // import { getToken } from "../auth.js";
   
   const router = useRouter();
-  const token = getToken();
+  // const token = getToken();
   const user = ref(null);
   const profiles = ref([]);
   const favorites = ref([]);

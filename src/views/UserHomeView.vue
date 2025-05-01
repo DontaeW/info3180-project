@@ -60,17 +60,18 @@
     race: ''
   })
   const activeFilter = ref('')
-  const allProfiles = ref([])
+  // const allProfiles = ref([])
   const selectedProfile = ref(null)
   const showModal = ref(false)
   const error = ref(null)
+
   // All profiles (mock data)
-  // const allProfiles = ref([
-  //   { id: 1, name: 'Alice Smith', birthYear: 1995, sex: 'female', race: 'Asian', image: 'https://via.placeholder.com/50' },
-  //   { id: 2, name: 'John Doe', birthYear: 1988, sex: 'male', race: 'Caucasian', image: 'https://via.placeholder.com/50' },
-  //   { id: 3, name: 'Maria Lopez', birthYear: 1992, sex: 'female', race: 'Latino', image: 'https://via.placeholder.com/50' },
-  //   { id: 4, name: 'Wei Chen', birthYear: 2000, sex: 'male', race: 'Asian', image: 'https://via.placeholder.com/50' }
-  // ])
+  const allProfiles = ref([
+    { id: 1, name: 'Alice Smith', birthYear: 1995, sex: 'female', race: 'Asian', image: 'https://via.placeholder.com/50' },
+    { id: 2, name: 'John Doe', birthYear: 1988, sex: 'male', race: 'Caucasian', image: 'https://via.placeholder.com/50' },
+    { id: 3, name: 'Maria Lopez', birthYear: 1992, sex: 'female', race: 'Latino', image: 'https://via.placeholder.com/50' },
+    { id: 4, name: 'Wei Chen', birthYear: 2000, sex: 'male', race: 'Asian', image: 'https://via.placeholder.com/50' }
+  ])
 
   // Computed profiles after search & filter
   const profiles = computed(() => {
@@ -155,9 +156,9 @@
       })
   }
 
-  onMounted(() => {
-    fetchProfiles()
-  })
+  // onMounted(() => {
+  //   fetchProfiles()
+  // })
 </script>
   
 <style scoped>
