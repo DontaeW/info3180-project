@@ -22,6 +22,9 @@
             <li class="nav-item" v-if="authStore.isAuthenticated">
               <RouterLink class="nav-link" to="/profile">My Profile</RouterLink>
             </li>
+            <li class="nav-item" v-if="authStore.isAuthenticated">
+              <RouterLink class="nav-link" to="/create">Create Profile</RouterLink>
+            </li>
           </ul>
             
           <ul class="navbar-nav">
@@ -63,8 +66,21 @@ function handleLogout() {
 }
 
 .navbar {
-  background-color: #ff438e;
+  background-color: #ff4362;
   padding: 10px;
+}
+
+.nav-link {
+  color: #fff;
+  text-decoration: none;
+  padding: 10px 15px;
+  border-radius: 5px;
+  transition: background-color 0.3s;
+}
+
+.nav-link:hover {
+  background-color: #faf5f6;
+  color: #ff4362;
 }
 
 .navbar-brand {
@@ -78,10 +94,11 @@ function handleLogout() {
   text-decoration: none;
   padding: 10px 15px;
   border-radius: 5px;
-  background-color: #ff438e;
+  background-color: #ff4362;
   transition: background-color 0.3s;
 }
 .btn:hover {
-  background-color: #ffebf0;
+  background-color: #faf5f6;
+  color: #ff4362;
 }
 </style>

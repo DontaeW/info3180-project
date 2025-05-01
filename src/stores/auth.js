@@ -9,23 +9,22 @@ export const useAuthStore = defineStore('auth', {
     }),
     actions: {
         login(userData, token) {
-        this.isAuthenticated = true;
-        this.user = userData;
-        this.token = token;
-        localStorage.setItem('authToken', token);
+            this.isAuthenticated = true;
+            this.user = userData;
+            this.token = token;
+            localStorage.setItem('authToken', token);
         },
         logout() {
-        this.isAuthenticated = false;
-        this.user = null;
-        this.token = null;
-        localStorage.removeItem('authToken');
+            this.isAuthenticated = false;
+            this.user = null;
+            this.token = null;
+            localStorage.removeItem('authToken');
         },
         checkAuth() {
-        const token = localStorage.getItem('authToken');
-        if (token) {
-            this.isAuthenticated = true;
-            this.token = token;
-            // Optionally fetch user data here
+            const token = localStorage.getItem('authToken');
+            if (token) {
+                this.isAuthenticated = true;
+                this.token = token;
         }
         }
     }

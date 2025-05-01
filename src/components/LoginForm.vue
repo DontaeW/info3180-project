@@ -82,7 +82,10 @@
             
             // Store the authentication token
             authStore.login({ username: username.value }, data.token);
-            router.push({ name: "userHome" });
+            console.log("Stored token:", data.token);
+            setTimeout(() => {
+                router.push({ name: "userHome" });
+            }, 500);
         })
         .catch(error => {
             console.error("Login error:", error);
