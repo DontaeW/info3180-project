@@ -6,7 +6,7 @@ This file creates your application.
 """
 
 from app import app, db, login_manager
-from flask import flash, render_template, request, jsonify, send_file,send_from_directory
+from flask import flash, render_template, request, jsonify, send_file,send_from_directory, session
 import os,jwt,base64
 from werkzeug.utils import secure_filename
 from flask_wtf.csrf import generate_csrf
@@ -28,17 +28,14 @@ def index():
 def get_csrf():
     return jsonify({'csrf_token': generate_csrf()}), 200
 
-@app.route("/api/v1/generate-token")
-def generate_token():
-    timestamp = datetime.now()
-    # do i update to have username and password?
+def generate_token(user_id):
+    timestamp = datetime.utcnow()
     payload = {
-        "sub": 1,
+        "sub": user_id,
         "iat": timestamp,
         "exp": timestamp + timedelta(hours=24)
     }
     token = jwt.encode(payload, app.config['SECRET_KEY'], algorithm='HS256')
-
     return token
 
 @app.route('/api/register', methods=["POST"])
@@ -86,7 +83,9 @@ def login():
 
             user = User.query.filter_by(username=username).first()
             if user and check_password_hash(user.password, password):
-                token = generate_token()
+                token = generate_token(user.id)
+                login_user(user)
+                session['login_time'] = datetime.utcnow().isoformat()
                 return jsonify({'message': 'Login successful!', 'token': token}), 200
             return jsonify({'errors': ['Invalid credentials']}), 401
         return jsonify({'errors': form_errors(form)}), 400
@@ -105,19 +104,6 @@ def load_user(id):
 def logout():
     logout_user()
     return jsonify({'message': 'Successfully logged out', 'redirect_url': "/"}), 200
-
-@app.route('/api/profiles', methods=['POST'])
-@login_required
-def create_profile():
-    data = request.json
-    try:
-        profile = Profile(**data, user_id_fk=current_user.id)
-        db.session.add(profile)
-        db.session.commit()
-        return jsonify({'message': 'Profile created'}), 201
-    except Exception as e:
-        db.session.rollback()
-        return jsonify({'error': str(e)}), 400
 
 @app.route('/api/profiles', methods=['GET'])
 @login_required

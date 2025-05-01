@@ -20,7 +20,7 @@
               <RouterLink class="nav-link" to="/about">About</RouterLink>
             </li>
             <li class="nav-item" v-if="authStore.isAuthenticated">
-              <RouterLink class="nav-link" to="/profile">My Profile</RouterLink>
+              <RouterLink class="nav-link" to="/profile">My Profiles</RouterLink>
             </li>
             <li class="nav-item" v-if="authStore.isAuthenticated">
               <RouterLink class="nav-link" to="/create">Create Profile</RouterLink>

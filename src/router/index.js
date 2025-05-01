@@ -2,7 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
 import UserHomeView from '../views/UserHomeView.vue'
 import MyProfileView from '../views/MyProfileView.vue'
-import ProfileForm from '../components/ProfileForm.vue'
+// import ProfileForm from '../components/ProfileForm.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -43,11 +43,11 @@ const router = createRouter({
       name: 'profile',
       component: MyProfileView
     },
-    {
-      path: '/create',
-      name: 'create',
-      component: ProfileForm
-    }
+    // {
+    //   path: '/create',
+    //   name: 'create',
+    //   component: ProfileForm
+    // }
   ]
 })
 

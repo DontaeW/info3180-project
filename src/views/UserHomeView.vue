@@ -40,7 +40,7 @@
                 </button> -->
               </div>
               <div class="actions">
-                <a href="#" class="view-more">View more details</a>
+                <a class="view-more" @click="viewProfile(profile.id)">View more details</a>
               </div>
             </div>
           </div>
@@ -51,7 +51,7 @@
 </template>
 
 <script setup>
-  import { ref, reactive } from 'vue'
+  import { ref, reactive, computed, onMounted} from 'vue'
   
   const search = reactive({
     name: '',
@@ -59,25 +59,105 @@
     sex: '',
     race: ''
   })
-  
-  const profiles = ref([
-    { id: 1, name: 'Alice Smith', image: 'https://via.placeholder.com/50', favorited: false },
-    { id: 2, name: 'John Doe', image: 'https://via.placeholder.com/50', favorited: false }
-  ])
+  const activeFilter = ref('')
+  const allProfiles = ref([])
+  const selectedProfile = ref(null)
+  const showModal = ref(false)
+  const error = ref(null)
+  // All profiles (mock data)
+  // const allProfiles = ref([
+  //   { id: 1, name: 'Alice Smith', birthYear: 1995, sex: 'female', race: 'Asian', image: 'https://via.placeholder.com/50' },
+  //   { id: 2, name: 'John Doe', birthYear: 1988, sex: 'male', race: 'Caucasian', image: 'https://via.placeholder.com/50' },
+  //   { id: 3, name: 'Maria Lopez', birthYear: 1992, sex: 'female', race: 'Latino', image: 'https://via.placeholder.com/50' },
+  //   { id: 4, name: 'Wei Chen', birthYear: 2000, sex: 'male', race: 'Asian', image: 'https://via.placeholder.com/50' }
+  // ])
+
+  // Computed profiles after search & filter
+  const profiles = computed(() => {
+    let filtered = [...allProfiles.value]
+
+    // Search logic: match only one non-empty field
+    if (search.name) {
+      filtered = filtered.filter(p => p.name.toLowerCase().includes(search.name.toLowerCase()))
+    } else if (search.birthYear) {
+      filtered = filtered.filter(p => p.birthYear === Number(search.birthYear))
+    } else if (search.sex) {
+      filtered = filtered.filter(p => p.sex === search.sex)
+    } else if (search.race) {
+      filtered = filtered.filter(p => p.race.toLowerCase().includes(search.race.toLowerCase()))
+    }
+
+    // Filter sort logic
+    switch (activeFilter.value) {
+      case 'name':
+        filtered.sort((a, b) => a.name.localeCompare(b.name))
+        break
+      case 'birth':
+        filtered.sort((a, b) => a.birthYear - b.birthYear)
+        break
+      case 'sex':
+        filtered.sort((a, b) => a.sex.localeCompare(b.sex))
+        break
+      case 'race':
+        filtered.sort((a, b) => a.race.localeCompare(b.race))
+        break
+    }
+
+    return filtered
+  })
 
   const handleSearch = () => {
-    console.log('Search Criteria:', search)
-    // Implement your actual search logic here
-  }
-
-  const toggleFavorite = (profile) => {
-    profile.favorited = !profile.favorited;
+    console.log('Search triggered with:', { ...search })
   }
 
   const applyFilter = (filterType) => {
-    console.log('Applying filter:', filterType);
-
+    activeFilter.value = filterType
   }
+
+  function fetchProfiles() {
+    fetch('/api/profiles', {
+      credentials: 'include'
+    })
+      .then(res => {
+        if (!res.ok) {
+          throw new Error('Failed to fetch profiles')
+        }
+        return res.json()
+      })
+      .then(data => {
+        allProfiles.value = data.map(p => {
+          const { _sa_instance_state, ...cleaned } = p
+          return cleaned
+        })
+      })
+      .catch(err => {
+        console.error(err)
+        error.value = err.message
+      })
+  }
+
+  function viewProfile(profileId) {
+    fetch(`/api/profiles/${profileId}`, {
+      credentials: 'include'
+    })
+      .then(res => {
+        if (!res.ok) throw new Error('Profile not found')
+        return res.json()
+      })
+      .then(data => {
+        const { _sa_instance_state, ...cleaned } = data
+        selectedProfile.value = cleaned
+        showModal.value = true
+      })
+      .catch(err => {
+        console.error(err)
+        error.value = err.message
+      })
+  }
+
+  onMounted(() => {
+    fetchProfiles()
+  })
 </script>
   
 <style scoped>
