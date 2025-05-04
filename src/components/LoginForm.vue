@@ -34,6 +34,7 @@
     
     // Method to fetch CSRF token
     function getCsrfToken() {
+<<<<<<< HEAD
         fetch("/api/v1/csrf-token")
         .then(response => {
             if (!response.ok) {
@@ -48,6 +49,23 @@
             console.error("Error fetching CSRF token", err);
         });
     }
+=======
+    fetch("/api/v1/csrf-token")
+    .then(response => {
+        if (!response.ok) {
+            throw new Error("Failed to get CSRF token");
+        }
+        return response.json();
+    })
+    .then(data => {
+        csrf_token.value = data.csrf_token;
+    })
+    .catch(err => {
+        console.error("Error fetching CSRF token", err);
+    });
+}
+
+>>>>>>> 7dcaeba (Initial commit with updated ProfileDetailView button styles)
     
     // Fetch CSRF token when component is mounted
     onMounted(() => {
@@ -62,9 +80,16 @@
         
         fetch("/api/auth/login", {
             method: "POST",
+<<<<<<< HEAD
             headers: {
                 "X-CSRF-Token": csrf_token.value,
             },
+=======
+            // Remove CSRF token header since backend login route is exempt
+            // headers: {
+            //     "X-CSRF-Token": csrf_token.value,
+            // },
+>>>>>>> 7dcaeba (Initial commit with updated ProfileDetailView button styles)
             body: formData
         })
         .then(response => {
@@ -80,8 +105,13 @@
             username.value = "";
             password.value = "";
             
+<<<<<<< HEAD
             // Store the authentication token
             authStore.login({ username: username.value }, data.token);
+=======
+            // Store the authentication token and user data
+            authStore.login(data.user, data.token);
+>>>>>>> 7dcaeba (Initial commit with updated ProfileDetailView button styles)
             console.log("Stored token:", data.token);
             setTimeout(() => {
                 router.push({ name: "userHome" });

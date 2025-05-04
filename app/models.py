@@ -58,7 +58,11 @@ class Profile(db.Model):
     
     id = db.Column(db.Integer, primary_key=True)
     user_id_fk = db.Column(db.Integer, db.ForeignKey('Users.id'), nullable=False)
+<<<<<<< HEAD
     description = db.Column(db.String(255), nullable=True)
+=======
+    name = db.Column(db.String(255), nullable=True)
+>>>>>>> 7dcaeba (Initial commit with updated ProfileDetailView button styles)
     parish = db.Column(db.String(80), nullable=True)
     biography = db.Column(db.String(500), nullable=True)
     sex = db.Column(db.String(20), nullable=True)
@@ -76,9 +80,15 @@ class Profile(db.Model):
         return f'<Profile for User ID: {self.user_id_fk}>'
         _
 
+<<<<<<< HEAD
     def __init__(self, user_id_fk, description, parish, biography, sex, race,birth_year, height, fav_cuisine, fav_colour,fav_school_subject, political, religious, family_oriented):
         self.user_id_fk = user_id_fk
         self.description = description
+=======
+    def __init__(self, user_id_fk, name, parish, biography, sex, race,birth_year, height, fav_cuisine, fav_colour,fav_school_subject, political, religious, family_oriented, photo=None):
+        self.user_id_fk = user_id_fk
+        self.name = name
+>>>>>>> 7dcaeba (Initial commit with updated ProfileDetailView button styles)
         self.parish = parish
         self.biography = biography
         self.sex = sex
@@ -91,10 +101,18 @@ class Profile(db.Model):
         self.political = political
         self.religious = religious
         self.family_oriented = family_oriented
+<<<<<<< HEAD
 
         def is_complete(self):
             required_fields = [
                 self.description, self.parish, self.biography, self.sex, self.race,
+=======
+        self.photo = photo
+
+        def is_complete(self):
+            required_fields = [
+                self.name, self.parish, self.biography, self.sex, self.race,
+>>>>>>> 7dcaeba (Initial commit with updated ProfileDetailView button styles)
                 self.birth_year, self.height, self.fav_cuisine,
                 self.fav_colour, self.fav_school_subject,
                 self.political, self.religious, self.family_oriented

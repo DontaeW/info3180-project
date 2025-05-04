@@ -30,6 +30,7 @@
         </div>
 
         <section class="profiles">
+<<<<<<< HEAD
           <div class="profile-card" v-for="profile in profiles" :key="profile.id">
             <img :src="profile.image" alt="Profile" class="profile-image">
             <div class="profile-info">
@@ -44,6 +45,22 @@
               </div>
             </div>
           </div>
+=======
+      <div class="profile-card" v-for="profile in profiles" :key="profile.id">
+        <img :src="profile.photo ? `http://localhost:5001/api/photo/${profile.photo}` : '/default-profile.png'" alt="Profile" class="profile-image">
+        <div class="profile-info">
+          <div class="profile-name">
+            {{ profile.name }}
+            <!-- <button class="heart" v-if="authStore.isLoggedIn" @click="toggleFavorite(profile)">
+              <span :class="{ favorited: profile.favorited }">♥</span>
+            </button> -->
+          </div>
+          <div class="actions">
+            <router-link :to="{ name: 'profileDetail', params: { id: profile.id } }" class="view-more" replace>View more details</router-link>
+          </div>
+        </div>
+      </div>
+>>>>>>> 7dcaeba (Initial commit with updated ProfileDetailView button styles)
         </section>
       </div>
     </main>
@@ -51,6 +68,7 @@
 </template>
 
 <script setup>
+<<<<<<< HEAD
   import { ref, reactive, computed, onMounted} from 'vue'
   
   const search = reactive({
@@ -160,6 +178,137 @@
   //   fetchProfiles()
   // })
 </script>
+=======
+import { ref, reactive, computed, onMounted } from 'vue'
+
+const search = reactive({
+  name: '',
+  birthYear: '',
+  sex: '',
+  race: ''
+})
+const activeFilter = ref('')
+const selectedProfile = ref(null)
+const showModal = ref(false)
+const error = ref(null)
+
+const allProfiles = ref([])
+
+const profiles = computed(() => {
+  let filtered = [...allProfiles.value]
+
+  if (search.name) {
+    filtered = filtered.filter(p => p.name.toLowerCase().includes(search.name.toLowerCase()))
+  } else if (search.birthYear) {
+    filtered = filtered.filter(p => p.birthYear === Number(search.birthYear))
+  } else if (search.sex) {
+    filtered = filtered.filter(p => p.sex === search.sex)
+  } else if (search.race) {
+    filtered = filtered.filter(p => p.race.toLowerCase().includes(search.race.toLowerCase()))
+  }
+
+  switch (activeFilter.value) {
+    case 'name':
+      filtered.sort((a, b) => a.name.localeCompare(b.name))
+      break
+    case 'birth':
+      filtered.sort((a, b) => a.birthYear - b.birthYear)
+      break
+    case 'sex':
+      filtered.sort((a, b) => a.sex.localeCompare(b.sex))
+      break
+    case 'race':
+      filtered.sort((a, b) => a.race.localeCompare(b.race))
+      break
+  }
+
+  return filtered
+})
+
+const handleSearch = () => {
+  // Build query parameters from search object
+  const params = new URLSearchParams()
+  if (search.name) params.append('name', search.name)
+  if (search.birthYear) params.append('birth_year', search.birthYear)
+  if (search.sex) params.append('sex', search.sex)
+  if (search.race) params.append('race', search.race)
+
+  fetch(`/api/search?${params.toString()}`, {
+    credentials: 'include'
+  })
+    .then(res => {
+      if (!res.ok) {
+        throw new Error('Failed to search profiles')
+      }
+      return res.json()
+    })
+      .then(data => {
+        console.log('Search results:', data)
+        allProfiles.value = data.map(p => {
+          const { _sa_instance_state, ...cleaned } = p
+          cleaned.image = `http://localhost:5001/api/photo/${cleaned.photo}`
+          return cleaned
+        })
+      })
+    .catch(err => {
+      console.error('Error searching profiles:', err)
+      error.value = err.message
+    })
+}
+
+const applyFilter = (filterType) => {
+  activeFilter.value = filterType
+}
+
+function fetchProfiles() {
+  fetch('/api/profiles?limit=4', {
+    credentials: 'include'
+  })
+    .then(res => {
+      if (!res.ok) {
+        throw new Error('Failed to fetch profiles')
+      }
+      return res.json()
+    })
+    .then(data => {
+      console.log('Fetched profiles:', data)
+        allProfiles.value = data.map(p => {
+          const { _sa_instance_state, ...cleaned } = p
+          cleaned.image = `http://localhost:5001/api/photo/${cleaned.photo}`
+          return cleaned
+        })
+    })
+    .catch(err => {
+      console.error('Error fetching profiles:', err)
+      error.value = err.message
+    })
+}
+
+onMounted(() => {
+  fetchProfiles()
+})
+
+function viewProfile(profileId) {
+  fetch(`http://localhost:8080/api/profiles/${profileId}`, {
+    credentials: 'include'
+  })
+    .then(res => {
+      if (!res.ok) throw new Error('Profile not found')
+      return res.json()
+    })
+    .then(data => {
+      const { _sa_instance_state, ...cleaned } = data
+      selectedProfile.value = cleaned
+      showModal.value = true
+    })
+    .catch(err => {
+      console.error(err)
+      error.value = err.message
+    })
+}
+</script>
+
+>>>>>>> 7dcaeba (Initial commit with updated ProfileDetailView button styles)
   
 <style scoped>
   .container {

@@ -2,7 +2,11 @@
   <header>
     <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
       <div class="container-fluid">
+<<<<<<< HEAD
         <a class="navbar-brand" href="/home">Jam-Date</a>
+=======
+        <RouterLink class="navbar-brand" to="/home">Jam-Date</RouterLink>
+>>>>>>> 7dcaeba (Initial commit with updated ProfileDetailView button styles)
         <button
           class="navbar-toggler"
           type="button"

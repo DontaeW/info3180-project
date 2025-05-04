@@ -14,6 +14,7 @@ export default defineConfig({
   server: {
     proxy: {
       '^/api*': {
+<<<<<<< HEAD
         target: 'http://localhost:8080/',
         changeOrigin: true
       }
@@ -22,5 +23,11 @@ export default defineConfig({
   build: {
     outDir: "app/static",
     emptyOutDir: true,
+=======
+        target: 'http://localhost:5001/',
+        changeOrigin: true
+      }
+    }
+>>>>>>> 7dcaeba (Initial commit with updated ProfileDetailView button styles)
   }
 })

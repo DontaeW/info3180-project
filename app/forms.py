@@ -5,6 +5,12 @@ from wtforms.validators import InputRequired, Email, Length, Optional, NumberRan
 from flask_wtf.file import FileField, FileRequired, FileAllowed
 
 class LoginForm(FlaskForm):
+<<<<<<< HEAD
+=======
+    class Meta:
+        csrf = False
+
+>>>>>>> 7dcaeba (Initial commit with updated ProfileDetailView button styles)
     username = StringField('Username', validators=[InputRequired(), Length(max=80)])
     password = PasswordField('Password', validators=[InputRequired(), Length(max=80)])
 
@@ -16,7 +22,14 @@ class SignUpForm(FlaskForm):
     photo = FileField('Photo', validators=[FileRequired(), FileAllowed(['jpg', 'png'], 'Images only!')])
 
 class ProfileForm(FlaskForm):
+<<<<<<< HEAD
     description = StringField('Description', validators=[Optional(), Length(max=255)])
+=======
+    class Meta:
+        csrf = False
+
+    name = StringField('Name', validators=[Optional(), Length(max=255)])
+>>>>>>> 7dcaeba (Initial commit with updated ProfileDetailView button styles)
     parish = StringField('Parish', validators=[Optional(), Length(max=80)])
     biography = TextAreaField('Biography', validators=[Optional(), Length(max=500)])
     sex = StringField('Sex', validators=[Optional(), Length(max=20)])
