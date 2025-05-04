@@ -22,7 +22,7 @@ from datetime import datetime, timedelta
 
 @app.route('/')
 def index():
-    return jsonify(message="This is the beginning of our API")
+    return send_from_directory(app.static_folder, 'index.html')
 
 @app.route('/api/v1/csrf-token', methods=['GET'])
 def get_csrf():
@@ -100,25 +100,25 @@ def load_user(id):
     return db.session.execute(db.select(User).filter_by(id=id)).scalar()
 
 @app.route('/api/auth/logout', methods=['POST'])
-@login_required
+#@login_required
 def logout():
     logout_user()
     return jsonify({'message': 'Successfully logged out', 'redirect_url': "/"}), 200
 
 @app.route('/api/profiles', methods=['GET'])
-@login_required
+#@login_required
 def list_profiles():
     profiles = Profile.query.filter(Profile.user_id_fk != current_user.id).all()
     return jsonify([p.__dict__ for p in profiles])
 
 @app.route('/api/profiles/<int:profile_id>', methods=['GET'])
-@login_required
+#@login_required
 def get_profile(profile_id):
     profile = Profile.query.get_or_404(profile_id)
     return jsonify(profile.__dict__)
 
 @app.route('/api/profiles/<int:user_id>/favourite', methods=['POST'])
-@login_required
+#@login_required
 def favourite_profile(user_id):
     if user_id == current_user.id:
         return jsonify({'error': 'Cannot favourite yourself'}), 403
@@ -133,7 +133,7 @@ def favourite_profile(user_id):
     return jsonify({'message': 'User favourited'}), 201
 
 @app.route('/api/users/<int:user_id>/favourites', methods=['GET'])
-@login_required
+#@login_required
 def user_favourites(user_id):
     if current_user.id != user_id:
         return jsonify({'error': 'Access denied'}), 403
@@ -143,7 +143,7 @@ def user_favourites(user_id):
     return jsonify(result)
 
 @app.route('/api/users/favourites/top/<int:N>', methods=['GET'])
-@login_required
+#@login_required
 def top_favorited_users(N):
     results = db.session.query(Favourite.fav_user_id_fk, db.func.count(Favourite.id).label('fav_count')).group_by(Favourite.fav_user_id_fk).order_by(db.desc('fav_count')).limit(N).all()
 
@@ -201,7 +201,7 @@ def page_not_found(error):
 
 
 @app.route('/api/profiles/matches/<int:profile_id>', methods=['GET'])
-@login_required
+#@login_required
 def get_matches(profile_id):
     
     token = request.headers.get('Authorization')
