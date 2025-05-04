@@ -24,6 +24,10 @@ from datetime import datetime, timedelta
 def index():
     return send_from_directory(app.static_folder, 'index.html')
 
+@app.route('/assets/<path:filename>')
+def assets(filename):
+    return send_from_directory(os.path.join(app.static_folder, 'assets'), filename)
+
 @app.route('/api/v1/csrf-token', methods=['GET'])
 def get_csrf():
     return jsonify({'csrf_token': generate_csrf()}), 200
